@@ -47,7 +47,7 @@ public class ExceptionHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorDTO> notFoundException(MethodArgumentNotValidException exception,
                                                                 HttpServletRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ValidationErrorDTO response = (ValidationErrorDTO) buildExceptionResponse(
                 status,
                 request,
