@@ -27,4 +27,22 @@ public class CityService {
         return new CityDTO(saved);
     }
 
+    @Transactional(readOnly = true)
+    public Page<CityDTO> findAll(Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Order.asc("name"))
+            );
+        }
+
+        Page<City> result = repository.findAll(pageable);
+        if (result.isEmpty()) {
+            throw new NotFoundException("Cidades não encontradas");
+        }
+
+        return result.map(CityDTO::new);
+    }
+
 }
