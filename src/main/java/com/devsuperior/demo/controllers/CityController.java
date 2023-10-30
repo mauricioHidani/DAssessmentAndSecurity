@@ -34,9 +34,9 @@ public class CityController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<CityDTO>> findAll(Pageable pageable) {
+    public ResponseEntity<List<CityDTO>> findAll() {
         return ResponseEntity.ok(
-                service.findAll(pageable)
+                service.findAll()
         );
     }
 

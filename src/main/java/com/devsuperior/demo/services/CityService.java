@@ -28,21 +28,17 @@ public class CityService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CityDTO> findAll(Pageable pageable) {
-        if (pageable.getSort().isUnsorted()) {
-            pageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    Sort.by(Sort.Order.asc("name"))
-            );
-        }
-
-        Page<City> result = repository.findAll(pageable);
+    public List<CityDTO> findAll() {
+        List<CityDTO> result = repository.findAll()
+                .stream()
+                .map(CityDTO::new)
+                .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
+                .collect(Collectors.toList());
         if (result.isEmpty()) {
             throw new NotFoundException("Cidades não encontradas");
         }
 
-        return result.map(CityDTO::new);
+        return result;
     }
 
 }
