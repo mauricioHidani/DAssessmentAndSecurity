@@ -32,7 +32,7 @@ public class ExceptionHandlerController {
     }
 
     @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<StandardErrorDTO> notFoundException(DatabaseException exception,
+    public ResponseEntity<StandardErrorDTO> databaseException(DatabaseException exception,
                                                               HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardErrorDTO response = buildExceptionResponse(
@@ -48,14 +48,19 @@ public class ExceptionHandlerController {
     public ResponseEntity<ValidationErrorDTO> notFoundException(MethodArgumentNotValidException exception,
                                                                 HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
-        ValidationErrorDTO response = (ValidationErrorDTO) buildExceptionResponse(
-                status,
-                request,
-                exception.getMessage()
-        );
-        exception.getBindingResult().getFieldErrors().forEach(e -> response.addErrors(
-                new EntityFieldErrorDTO(e.getField(), e.getObjectName())
-        ));
+        ValidationErrorDTO response = new ValidationErrorDTO();
+        response.setCode(status.value());
+        response.setError(status.name());
+        response.setTimestamp(Instant.now(Clock.systemUTC()));
+        response.setMessage("Erro de validação de campo");
+        response.setPath(request.getRequestURI());
+
+        exception.getBindingResult()
+            .getFieldErrors()
+                .forEach(e -> response.addErrors(
+                        new EntityFieldErrorDTO(e.getField(), e.getDefaultMessage())
+                    )
+                );
 
         return ResponseEntity.status(status).body(response);
     }
@@ -69,7 +74,7 @@ public class ExceptionHandlerController {
         response.setError(status.name());
         response.setTimestamp(Instant.now(Clock.systemUTC()));
         response.setMessage(exceptionMessage);
-        response.setPath(request.getContextPath());
+        response.setPath(request.getRequestURI());
 
         return response;
     }
